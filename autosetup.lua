@@ -88,12 +88,12 @@ srv:listen(80, function(conn)
         print(payload)
     
         -- === FUNCTIONS ===
-        function respondMain()
+        function respondWifiSetupPage()
             sck:send("HTTP/1.1 200 OK\r\n" ..
                     "Server: NodeMCU on ESP8266\r\n" ..
                     "Content-Type: text/html; charset=UTF-8\r\n\r\n", 
                     function()
-                        Sendfile(sck, "1.html", 
+                        Sendfile(sck, "wifisetup.html", 
                             function() 
                                 sck:close()
                             end)
@@ -152,14 +152,17 @@ srv:listen(80, function(conn)
             print("### handleGET() ###")
             -- path?
             if string.match(path, "status") then
-                print(" --> GETOST /status")
+                print(" --> GET /status")
                 respondStatus()
             elseif string.match(path, "generate_204") then
                 print(" - respond204()")
                 respond204()
             elseif string.len(path)==1 then
-                print(" - respondMain()") 
-                respondMain()
+                print(" - respondWifiSetupPage()") 
+                respondWifiSetupPage()
+            elseif string.match(path, "setwificonfig") then 
+                print(" --> GET /setwificonfig")
+                respondWifiSetupPage()
             else
                 print(" - respond404") 
                 respondNotFound()
@@ -167,12 +170,20 @@ srv:listen(80, function(conn)
         end
 
         -- handle posted data updates
+        function handlePOSTwificonfig()
+            local regex1 = ".*ssid=(.*)&password=(.*)&endindication"
+            local POST_ssid, POST_password = string.match(payload, regex1)
+            print("POST_ssid : " .. (POST_ssid==nil and "N/A" or POST_ssid))
+            print("POST_password : " .. (POST_password==nil and "N/A" or POST_password))
+        end
+
         function handlePOST(path)
             print("### handlePOST() ###")
             -- path?
             if string.match(path, "setwificonfig") then
                 print(" --> POST /setwificonfig")
-                respondMain()
+                handlePOSTwificonfig()
+                respondOK()
             else
                 respondNotFound()
             end
