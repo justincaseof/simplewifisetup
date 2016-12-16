@@ -173,8 +173,27 @@ srv:listen(80, function(conn)
         function handlePOSTwificonfig()
             local regex1 = ".*ssid=(.*)&password=(.*)&endindication"
             local POST_ssid, POST_password = string.match(payload, regex1)
-            print("POST_ssid : " .. (POST_ssid==nil and "N/A" or POST_ssid))
-            print("POST_password : " .. (POST_password==nil and "N/A" or POST_password))
+            print("POST_ssid : '" .. (POST_ssid==nil and "N/A" or POST_ssid) .. "'")
+            print("POST_password : '" .. (POST_password==nil and "N/A" or POST_password) .. "'")
+            
+            if POST_ssid and POST_password then
+                -- hack for having ',' (comma) work
+                POST_password = string.gsub(POST_password, "%%2C", ",")
+                print("POST_password(corrected) : '" .. (POST_password==nil and "N/A" or POST_password) .. "'")
+                
+                if file.open("client_ssid.txt", "w+") then
+                    file.write(POST_ssid)
+                    file.close()
+                    print("client_ssid written")
+                end
+                if file.open("client_password.txt", "w+") then
+                    file.write(POST_password)
+                    file.close()
+                    print("client_password written")
+                end
+            else
+                print("invalid request")
+            end
         end
 
         function handlePOST(path)
