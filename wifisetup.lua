@@ -1,6 +1,14 @@
 -- this is a comment
 print("Autosetup")
 
+----------------------------------
+-- Blink fast to indicate mode  --
+----------------------------------
+led_pin = 3
+gpio.mode(led_pin, gpio.OUTPUT)
+pwm.setup(led_pin, 1, 800)
+pwm.start(led_pin)
+
 ----------------
 -- Init Wifi  --
 ----------------
@@ -36,7 +44,7 @@ print("wifi.ap.dhcp.start() : " .. successss)
 
 print("--------------------------------")
 apip = wifi.ap.getip()
-print("wifi.ap.getip() : " .. apip~=nil and apip or "noapip. LOL.")
+print("wifi.ap.getip() : " .. (apip~=nil and apip or "noapip. LOL."))
 
 ----------------
 -- Web Server --
