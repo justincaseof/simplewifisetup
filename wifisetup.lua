@@ -46,6 +46,36 @@ print("--------------------------------")
 apip = wifi.ap.getip()
 print("wifi.ap.getip() : " .. (apip~=nil and apip or "noapip. LOL."))
 
+
+
+-----------------------------
+-- WIFI setup switch check --
+-----------------------------
+-- check for active wifi setup during cycle
+-- var 'local setup_wifi = gpio.read(setupwifi_pin)' has been previously defined by init.lua script
+function isTimerModeActive()
+    if setupwifi_pin then
+        return gpio.read(setupwifi_pin)==1
+    end
+    return false
+end
+local timer1_id = 0
+local timer1_timeout_millis = 1000
+tmr.register(timer1_id, timer1_timeout_millis, tmr.ALARM_SEMI, function()
+    -- === WIFI SETUP CHECK ===
+    -- check for active wifi setup during cycle
+    -- var 'local setup_wifi = gpio.read(setupwifi_pin)' has been previously defined by init.lua script
+    if isTimerModeActive() then
+        print("TIMERMODE_RESTART")
+        node.restart()
+    end
+    -- === /WIFICHECK ===
+    tmr.start(timer1_id)
+end)
+tmr.start(timer1_id)
+print(" timer1 started (reboot)");
+
+
 ----------------
 -- Web Server --
 ----------------
